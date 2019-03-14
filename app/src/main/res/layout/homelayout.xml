@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/enableMicButton"
+        android:layout_width="155dp"
+        android:layout_height="143dp"
+        app:srcCompat="@android:drawable/ic_btn_speak_now"
+        tools:layout_editor_absoluteX="128dp"
+        tools:layout_editor_absoluteY="294dp" />
+
+    <TextView
+        android:id="@+id/enableMicText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable Microphone"
+        tools:layout_editor_absoluteX="146dp"
+        tools:layout_editor_absoluteY="451dp" />
+
+    <TextView
+        android:id="@+id/pingText"
+        android:layout_width="91dp"
+        android:layout_height="33dp"
+        android:text="Ping: {#}ms"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="128dp"
+        tools:layout_editor_absoluteY="520dp" />
+
+
+
+    <ImageView
+        android:id="@+id/pingOkayImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/star_big_on"
+        tools:layout_editor_absoluteX="251dp"
+        tools:layout_editor_absoluteY="521dp" />
+
+    <ImageButton
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/ic_menu_manage"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="10dp" />
+
+    <ImageButton
+        android:id="@+id/imageButton3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/ic_menu_info_details"
+        tools:layout_editor_absoluteX="338dp"
+        tools:layout_editor_absoluteY="10dp" />
+
+</android.support.constraint.ConstraintLayout>

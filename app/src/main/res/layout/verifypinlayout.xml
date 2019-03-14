@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/pinText"
+        android:layout_width="196dp"
+        android:layout_height="34dp"
+        android:text="Pin Verification"
+        android:textSize="24sp"
+        android:textStyle="italic"
+        tools:layout_editor_absoluteX="117dp"
+        tools:layout_editor_absoluteY="223dp" />
+
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="112dp"
+        android:layout_marginRight="112dp"
+        android:text="Confirm"
+        app:layout_constraintEnd_toEndOf="@+id/pinText"
+        tools:layout_editor_absoluteY="277dp" />
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        app:layout_constraintEnd_toEndOf="@+id/pinText"
+        tools:layout_editor_absoluteY="277dp" />
+
+    <TextView
+        android:id="@+id/pinDisclaimer"
+        android:layout_width="193dp"
+        android:layout_height="37dp"
+        android:text="Confirm that this is the pin displayed on your personal computer"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="@+id/pinText"
+        tools:layout_editor_absoluteY="347dp" />
+</android.support.constraint.ConstraintLayout>
