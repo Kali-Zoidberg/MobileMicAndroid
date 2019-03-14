@@ -35,12 +35,15 @@ public class MainActivity extends AppCompatActivity {
     private String [] internetPermissions = {Manifest.permission.INTERNET};
     private String [] networkPermissions = {Manifest.permission.ACCESS_NETWORK_STATE};
 
+    private boolean recording = true;
+
     private boolean permissionToRecordAccepted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.testlayout);
+
 
         int hertz = 44100;
         int channels = 2;
@@ -90,7 +93,9 @@ public class MainActivity extends AppCompatActivity {
             client = new Client(this.serverIP, this.port);
           //  ClientThread clientThread = new ClientThread(client);
             ConnectToServerTask connectToServer = new ConnectToServerTask();
+            VerifyUIDTask verifyUIDTask = new VerifyUIDTask("98231");
             connectToServer.execute(client);
+            verifyUIDTask.execute(client);
 
             try {
                 //clientThread.start();
@@ -109,23 +114,38 @@ public class MainActivity extends AppCompatActivity {
             if(client != null)
             {
                 micRecordThread.setRecording(false);
-                client.disconnectFromServer();
+                DisconnectFromServerTask disconnectFromServerTask = new DisconnectFromServerTask();
+                disconnectFromServerTask.execute(client);
+
             }
         }
     }
 
     public void streamAudio(View view)
     {
-        if(connected) {
-            try {
-                client.connectToUDPServer();
-                micRecordThread.run();
+        if(connected && !micRecordThread.isRecording()) {
+                micRecordThread.setRecording(true);
+               Thread thread = new Thread( new Runnable() {
 
-            } catch (SocketException e)
-            {
-                e.printStackTrace();
-            }
+               public void run() {
+                   try {
+                   client.connectToUDPServer();
+                   micRecordThread.start();
 
+                   } catch (SocketException e)
+                   {
+                       e.printStackTrace();
+                   }
+
+               }
+               });
+               thread.start();
+
+               //streamAudioBytes(Client client);
+
+        } else
+        {
+            micRecordThread.setRecording(false);
         }
 
     }
@@ -157,10 +177,10 @@ class MicRecordThread extends Thread
 {
     private AudioRecord audioRec;
     private Client client;
-    private boolean recording = true;
+    private boolean recording = false;
     private int bufSize = 1024;
     private final Object bufSizeLock = new Object();
-
+    private Object recordingLock = new Object();
     MicRecordThread(AudioRecord audioRecord, Client client)
     {
         this.audioRec = audioRecord;
@@ -171,11 +191,12 @@ class MicRecordThread extends Thread
     public void run()
     {
         int bytesRead = 0;
-        while(recording)
+        while(this.isRecording())
         {
+            System.out.println("hiya");
             int bufSize = this.getBufSize();
             byte[] audioData = new byte[bufSize];
-            bytesRead = audioRec.read(audioData, 0, bufSize);
+                bytesRead = audioRec.read(audioData, 0, bufSize);
             try {
                 client.sendBytesToUDP(audioData);
             } catch (IOException e)
@@ -189,9 +210,13 @@ class MicRecordThread extends Thread
      * Returns whether or not the mic record thread is streaming to the server.
      * @return Returns true if it is streaming to the UDP socket, false otherwise.
      */
-    public boolean isRecording()
+    public synchronized boolean isRecording()
     {
-        return recording;
+        synchronized(recordingLock)
+        {
+            return recording;
+        }
+
     }
 
     /**
@@ -199,9 +224,11 @@ class MicRecordThread extends Thread
      * @param recording
      */
 
-    public void setRecording(boolean recording)
+    public synchronized void setRecording(boolean recording)
     {
-        this.recording = recording;
+        synchronized (recordingLock) {
+            this.recording = recording;
+        }
     }
 
     public int getBufSize()

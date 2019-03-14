@@ -66,7 +66,7 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gradle" value="12" />
-          <entry key="java" value="10012" />
+          <entry key="java" value="10802" />
           <entry key="txt" value="1186" />
           <entry key="xml" value="10" />
         </counts>
@@ -74,7 +74,7 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Groovy" value="12" />
-          <entry key="JAVA" value="10012" />
+          <entry key="JAVA" value="10802" />
           <entry key="PLAIN_TEXT" value="1186" />
           <entry key="XML" value="10" />
         </counts>
@@ -125,10 +125,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="95" column="39" lean-forward="true" selection-start-line="95" selection-start-column="39" selection-end-line="95" selection-end-column="39" />
+            <state relative-caret-position="434">
+              <caret line="197" column="49" lean-forward="true" selection-start-line="197" selection-start-column="49" selection-end-line="197" selection-end-column="49" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#4686#5042#0" expanded="true" />
+                <element signature="e#5041#5042#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -158,8 +160,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-59">
-              <caret line="291" selection-start-line="291" selection-end-line="291" />
+            <state relative-caret-position="-671">
+              <caret line="150" column="41" lean-forward="true" selection-start-line="150" selection-start-column="41" selection-end-line="150" selection-end-column="41" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#6188#6189#0" expanded="true" />
@@ -172,10 +174,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/ClientTasks.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="43">
-              <caret line="9" column="25" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="25" />
+            <state relative-caret-position="315">
+              <caret line="58" selection-start-line="58" selection-end-line="58" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1534#1535#0" expanded="true" />
+                <element signature="e#1558#1559#0" expanded="true" />
                 <element signature="e#1828#1829#0" expanded="true" />
                 <element signature="e#1871#1872#0" expanded="true" />
               </folding>
@@ -201,6 +205,9 @@
       <find>sendData</find>
     </findStrings>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -214,9 +221,9 @@
         <option value="$PROJECT_DIR$/app/build.gradle" />
         <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/Protocol.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/Client.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/ClientTasks.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/MainActivity.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/Client.java" />
       </list>
     </option>
   </component>
@@ -225,6 +232,7 @@
     <option name="width" value="1505" />
     <option name="height" value="946" />
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
@@ -378,14 +386,14 @@
       <window_info id="Image Layers" order="5" />
       <window_info id="Designer" order="6" />
       <window_info id="Capture Tool" order="7" />
-      <window_info active="true" anchor="bottom" id="Run" order="0" sideWeight="0.49200428" visible="true" weight="0.329718" />
+      <window_info active="true" anchor="bottom" id="Run" order="0" sideWeight="0.4904051" visible="true" weight="0.329718" />
       <window_info anchor="bottom" id="Logcat" order="1" sideWeight="0.49253732" weight="0.32881773" />
       <window_info anchor="bottom" id="TODO" order="2" sideWeight="0.49946696" weight="0.329718" />
       <window_info anchor="bottom" id="Debug" order="3" />
       <window_info anchor="bottom" id="Terminal" order="4" sideWeight="0.49840087" weight="0.329718" />
-      <window_info anchor="bottom" id="Event Log" order="5" sideWeight="0.5079957" side_tool="true" visible="true" weight="0.329718" />
+      <window_info anchor="bottom" id="Event Log" order="5" sideWeight="0.50959486" side_tool="true" visible="true" weight="0.329718" />
       <window_info anchor="bottom" id="Version Control" order="6" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49328357" weight="0.32881773" />
+      <window_info anchor="bottom" id="Build" order="7" sideWeight="0.4914712" weight="0.3286334" />
       <window_info anchor="bottom" id="Android Profiler" order="8" sideWeight="0.49733475" weight="0.329718" />
       <window_info anchor="bottom" id="Find" order="9" />
       <window_info anchor="right" id="Device File Explorer" order="0" side_tool="true" />
@@ -458,6 +466,20 @@
       </provider>
       <provider editor-type-id="android-manifest" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/ClientTasks.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="58" selection-start-line="58" selection-end-line="58" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1534#1535#0" expanded="true" />
+            <element signature="e#1558#1559#0" expanded="true" />
+            <element signature="e#1828#1829#0" expanded="true" />
+            <element signature="e#1871#1872#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/Protocol.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="221">
@@ -471,10 +493,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/content_main.xml">
+      <provider editor-type-id="text-editor" />
+      <provider selected="true" editor-type-id="android-designer2" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-59">
-          <caret line="291" selection-start-line="291" selection-end-line="291" />
+        <state relative-caret-position="-671">
+          <caret line="150" column="41" lean-forward="true" selection-start-line="150" selection-start-column="41" selection-end-line="150" selection-end-column="41" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#6188#6189#0" expanded="true" />
@@ -483,28 +509,14 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/content_main.xml">
-      <provider editor-type-id="text-editor" />
-      <provider selected="true" editor-type-id="android-designer2" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/ClientTasks.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="43">
-          <caret line="9" column="25" selection-start-line="9" selection-start-column="6" selection-end-line="9" selection-end-column="25" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#1828#1829#0" expanded="true" />
-            <element signature="e#1871#1872#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/mobilemic/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="95" column="39" lean-forward="true" selection-start-line="95" selection-start-column="39" selection-end-line="95" selection-end-column="39" />
+        <state relative-caret-position="434">
+          <caret line="197" column="49" lean-forward="true" selection-start-line="197" selection-start-column="49" selection-end-line="197" selection-end-column="49" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#4686#5042#0" expanded="true" />
+            <element signature="e#5041#5042#0" expanded="true" />
           </folding>
         </state>
       </provider>

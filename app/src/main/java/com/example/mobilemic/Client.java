@@ -109,6 +109,12 @@ public class Client {
 
     public void sendBytesToUDP(byte[] buffer) throws IOException {
         if (udpSocket != null) {
+            System.out.println("sending bytes to udp socket");
+            for (byte b: buffer)
+            {
+                System.out.print (b + " ");
+            }
+            System.out.println();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.serverSocket.getLocalAddress(), this.portNumber);
             udpSocket.send(packet);
         }
