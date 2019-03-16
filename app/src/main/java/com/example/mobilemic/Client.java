@@ -22,13 +22,21 @@ public class Client {
     private String hostName;
     private PrintWriter outputStream;
     private BufferedReader inputStream;
-
+    private boolean connectedToUDP = false;
+    private final String DISCONNECT_CMD = "S.disconnect";
+    private final byte[] CLOSE_UDP_CMD = "end".getBytes();
     private Object ouputLock = new Object();
     private Object inputLock = new Object();
 
     Client(String hostName, int port) {
         this.setPortNumber(port);
         this.setHostName(hostName);
+    }
+
+    Client()
+    {
+        this.hostName = "10.0.2.2";
+        this.setPortNumber(7000);
     }
 
     public Socket getSocket() {
@@ -115,7 +123,7 @@ public class Client {
                 System.out.print (b + " ");
             }
             System.out.println();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, this.serverSocket.getLocalAddress(), this.portNumber);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(this.hostName), this.portNumber);
             udpSocket.send(packet);
         }
     }
@@ -136,7 +144,15 @@ public class Client {
      */
     public void connectToUDPServer() throws SocketException {
         this.sendDataToServer("S.udp");
-        udpSocket = new DatagramSocket();
+        try {
+            udpSocket = new DatagramSocket();
+            this.connectedToUDP = true;
+
+        } catch (SocketException e) {
+            System.out.println("Could not connect to the UDP socket");
+            e.printStackTrace();
+
+        }
     }
 
 
@@ -209,7 +225,6 @@ public class Client {
 
     /**
      * Reads a message form the server.
-     *
      * @return if the server closes unexplectedly, the method will return null. Otherwise, it returns a mesage from the server.
      */
 
@@ -241,25 +256,57 @@ public class Client {
 
     }
 
+
     /**
-     * Disconnects the client from the server
+     * 1s the client from the server
      */
 
     public void disconnectFromServer() {
         //put any messages that need to be sent to server here.
+
         try {
+            if (this.connectedToUDP)
+                this.sendBytesToUDP("end".getBytes());
 
-            if (this.inputStream != null)
-                this.inputStream.close();
-
-            if (this.outputStream != null)
-                this.outputStream.close();
-            if (this.serverSocket != null)
-                this.serverSocket.close();
-            if (this.udpSocket != null)
-                this.udpSocket.close();
         } catch (IOException e) {
             //do something
+        } finally {
+            this.sendDataToServer(DISCONNECT_CMD);
+            try {
+                if (this.inputStream != null)
+                    this.inputStream.close();
+
+                if (this.outputStream != null)
+                    this.outputStream.close();
+                if (this.serverSocket != null)
+                    this.serverSocket.close();
+                if (this.udpSocket != null)
+                    this.udpSocket.close();
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                System.out.println("Error closing one or more client file descriptors.");
+            }
+        }
+    }
+
+
+    /**
+     * Closes the client's UDP socket if it is open.
+     */
+
+    public void closeUDPSocket()
+    {
+        if (this.isConnectedToUDP() || this.udpSocket != null)
+        {
+            try {
+                this.sendBytesToUDP("end".getBytes());
+                this.udpSocket.close();
+            } catch (IOException e)
+            {
+                e.printStackTrace();
+                System.out.println("Error closing udp socket or sending the end message to the udp server.");
+            }
         }
     }
 
@@ -273,6 +320,15 @@ public class Client {
         if (outputStream != null) {
             outputStream.println(data);
         }
+    }
+
+    /**
+     * Method to determine if the client is connected to the UDP socket of the server.
+     * @return Returns true if the client is connected to the UDP socket and returns false otherwise.
+     */
+    public boolean isConnectedToUDP()
+    {
+        return this.connectedToUDP;
     }
 
 

@@ -8,6 +8,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,22 +20,22 @@ import android.widget.TextView;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     private String serverIP = "";
     private int port = -1;
     private AudioRecord recorder;
-    private Client client;
+    private Client client = new Client();
     private static final String LOG_TAG = "AudioRecordTest";
     private boolean connected = false;
     private MicRecordThread micRecordThread;
     private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final int REQUEST_INTERNET_PERMISSION = 404;
     private final int REQUEST_NETWORK_ACCESS_PERMISSION = 520;
-    private String [] permissions = {Manifest.permission.RECORD_AUDIO};
+    private String [] recordPermissions = {Manifest.permission.RECORD_AUDIO};
     private String [] internetPermissions = {Manifest.permission.INTERNET};
     private String [] networkPermissions = {Manifest.permission.ACCESS_NETWORK_STATE};
-
     private boolean recording = true;
 
     private boolean permissionToRecordAccepted = false;
@@ -65,9 +66,14 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, networkPermissions, REQUEST_NETWORK_ACCESS_PERMISSION);
 
                 System.out.println("permission granted");
-                break;
-                case REQUEST_NETWORK_ACCESS_PERMISSION:
-                    System.out.println("Permission to network access granted");
+            break;
+            case REQUEST_NETWORK_ACCESS_PERMISSION:
+                ActivityCompat.requestPermissions(this, recordPermissions, REQUEST_RECORD_AUDIO_PERMISSION);
+                System.out.println("Permission to network access granted.");
+            break;
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+
+                System.out.println("Permission to Record Audio granted.");
             break;
         }
         if (!permissionToRecordAccepted ) finish();
@@ -82,20 +88,21 @@ public class MainActivity extends AppCompatActivity {
     {
         if (!connected) {
 
-            TextInputLayout serverIPTextInput = (TextInputLayout) findViewById(R.id.serverIPTextInput);
-            TextInputLayout portTextInput = (TextInputLayout) findViewById(R.id.portTextInput);
+            TextInputEditText serverIPTextInput = (TextInputEditText) findViewById(R.id.serverIPTextInput);
+            TextInputEditText portTextInput = (TextInputEditText) findViewById(R.id.portTextInput).findViewById(R.id.portTextInputEditText);
             TextView errorTextView = (TextView) findViewById(R.id.connectServerErrorTextView);
-       //     this.serverIP = serverIPTextInput.getEditText().toString();
-        //    this.port = Integer.parseInt(portTextInput.getEditText().toString());
-            this.serverIP = "10.0.2.2";
-            this.port = 7000;
+            this.serverIP = serverIPTextInput.getText().toString();
+            this.port = Integer.parseInt(portTextInput.getText().toString());
+
             errorTextView.setVisibility(View.VISIBLE);
-            client = new Client(this.serverIP, this.port);
+            client.setHostName(this.serverIP);
+            client.setPortNumber(this.port);
           //  ClientThread clientThread = new ClientThread(client);
             ConnectToServerTask connectToServer = new ConnectToServerTask();
             VerifyUIDTask verifyUIDTask = new VerifyUIDTask("98231");
             connectToServer.execute(client);
             verifyUIDTask.execute(client);
+            connected = true;
 
             try {
                 //clientThread.start();
@@ -103,43 +110,33 @@ public class MainActivity extends AppCompatActivity {
                 micRecordThread = new MicRecordThread(this.recorder, client);
 
 
-                connected = true;
 
             } catch (Exception e) {
                 errorTextView.setText("Error connecting to server " + e.getMessage());
                 e.printStackTrace();
             }
-        } else
+        } else if (connected)
         {
+            //what if the user is also connected to the udp server? we need to end the udp as well
             if(client != null)
             {
                 micRecordThread.setRecording(false);
                 DisconnectFromServerTask disconnectFromServerTask = new DisconnectFromServerTask();
                 disconnectFromServerTask.execute(client);
+                connected = false;
 
             }
         }
     }
 
+
     public void streamAudio(View view)
     {
         if(connected && !micRecordThread.isRecording()) {
                 micRecordThread.setRecording(true);
-               Thread thread = new Thread( new Runnable() {
 
-               public void run() {
-                   try {
-                   client.connectToUDPServer();
                    micRecordThread.start();
 
-                   } catch (SocketException e)
-                   {
-                       e.printStackTrace();
-                   }
-
-               }
-               });
-               thread.start();
 
                //streamAudioBytes(Client client);
 
@@ -190,21 +187,30 @@ class MicRecordThread extends Thread
 
     public void run()
     {
-        int bytesRead = 0;
-        while(this.isRecording())
-        {
-            System.out.println("hiya");
-            int bufSize = this.getBufSize();
-            byte[] audioData = new byte[bufSize];
-                bytesRead = audioRec.read(audioData, 0, bufSize);
-            try {
-                client.sendBytesToUDP(audioData);
-            } catch (IOException e)
+        try {
+            client.connectToUDPServer();
+            int bytesRead = 0;
+            while(this.isRecording())
             {
-                e.printStackTrace();
+                int bufSize = this.getBufSize();
+                byte[] audioData = new byte[bufSize];
+                bytesRead = audioRec.read(audioData, 0, bufSize);
+                try {
+                    client.sendBytesToUDP(audioData);
+                } catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
+            this.client.closeUDPSocket();
+
+        } catch (IOException e)
+        {
+            e.printStackTrace();
         }
+
     }
+
 
     /**
      * Returns whether or not the mic record thread is streaming to the server.

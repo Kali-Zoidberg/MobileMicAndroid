@@ -8,38 +8,46 @@
 
     <TextView
         android:id="@+id/pinText"
-        android:layout_width="196dp"
-        android:layout_height="34dp"
+        android:layout_width="254dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="200dp"
         android:text="Pin Verification"
-        android:textSize="24sp"
+        android:textSize="36sp"
         android:textStyle="italic"
-        tools:layout_editor_absoluteX="117dp"
-        tools:layout_editor_absoluteY="223dp" />
+        app:fontFamily="@font/nunito"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintRight_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/confirmButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="112dp"
-        android:layout_marginRight="112dp"
+        android:layout_marginTop="50dp"
         android:text="Confirm"
-        app:layout_constraintEnd_toEndOf="@+id/pinText"
-        tools:layout_editor_absoluteY="277dp" />
+        app:layout_constraintLeft_toLeftOf="@+id/pinText"
+        app:layout_constraintTop_toBottomOf="@+id/pinText" />
 
     <Button
         android:id="@+id/button5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:text="Cancel"
-        app:layout_constraintEnd_toEndOf="@+id/pinText"
-        tools:layout_editor_absoluteY="277dp" />
+        app:layout_constraintRight_toRightOf="@+id/pinText"
+        app:layout_constraintTop_toBottomOf="@+id/pinText" />
 
     <TextView
         android:id="@+id/pinDisclaimer"
-        android:layout_width="193dp"
-        android:layout_height="37dp"
-        android:text="Confirm that this is the pin displayed on your personal computer"
+        android:layout_width="344dp"
+        android:layout_height="116dp"
+        android:layout_marginTop="50dp"
+        android:text="Please confirm that this pin matches the pin displayed on your personal computer."
         android:textColor="@color/colorPrimary"
-        app:layout_constraintEnd_toEndOf="@+id/pinText"
-        tools:layout_editor_absoluteY="347dp" />
+        android:textSize="24sp"
+        app:fontFamily="@font/nunito"
+        app:layout_constraintLeft_toLeftOf="@+id/pinText"
+        app:layout_constraintRight_toRightOf="@+id/pinText"
+        app:layout_constraintTop_toBottomOf="@+id/confirmButton" />
 </android.support.constraint.ConstraintLayout>
