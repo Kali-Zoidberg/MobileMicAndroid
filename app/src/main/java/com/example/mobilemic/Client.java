@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -18,6 +19,8 @@ import java.net.UnknownHostException;
 public class Client {
     private Socket serverSocket = null;
     private DatagramSocket udpSocket = null;
+    private InetAddress group = null;
+    private MulticastSocket multiSock = null;
     private int portNumber;
     private String hostName;
     private PrintWriter outputStream;
@@ -31,6 +34,7 @@ public class Client {
     Client(String hostName, int port) {
         this.setPortNumber(port);
         this.setHostName(hostName);
+
     }
 
     Client()
@@ -136,6 +140,36 @@ public class Client {
             udpSocket.send(packet);
         }
     }
+
+    public void sendRTP(byte[] buffer) throws IOException
+    {
+        if (multiSock != null)
+        {
+            System.out.println("Sending packet to server.");
+            for (byte b: buffer)
+            {
+                System.out.print (b + " ");
+            }
+            System.out.println();
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(this.hostName), this.portNumber);
+            multiSock.send(packet);
+
+        } else
+            System.out.println("Packet sent to server.");
+    }
+
+
+    public void connectToMultiSocket() throws SocketException
+    {
+        try {
+            multiSock = new MulticastSocket(this.portNumber);
+            group = InetAddress.getByName(this.hostName);
+            multiSock.joinGroup(group);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * Starts the udp socket on the server.
