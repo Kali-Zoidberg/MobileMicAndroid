@@ -6,7 +6,6 @@ import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
@@ -18,13 +17,22 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.mobilemic.rtp.RTPSocketPlayer;
 import com.example.mobilemic.rtp.RtpPacket;
 
+import net.majorkernelpanic.streaming.rtp.RtpSocket;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Vector;
 
+import javax.media.CaptureDeviceManager;
 import javax.media.MediaLocator;
+import javax.media.protocol.CaptureDevice;
 
 public class MainActivity extends AppCompatActivity {
     private String serverIP = "";
@@ -50,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.testlayout);
+
+        
         System.out.println(this.getApplicationContext().getFilesDir().getAbsolutePath());
 
 
@@ -89,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         System.out.println("requesting permission results");
         switch (requestCode){
@@ -140,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
 
-                micRecordThread = new MicRecordThread(this.recorder, client, rtpClient);
+                micRecordThread = new MicRecordThread(this.recorder, client);
 
 
 
@@ -202,44 +212,51 @@ public class MainActivity extends AppCompatActivity {
         private AudioRecord audioRec;
         private Client client;
         private boolean recording = false;
-        private int bufSize = 256;
+        private int bufSize = 4;
         private final Object bufSizeLock = new Object();
         private Object recordingLock = new Object();
-        private int packetsSent = 0;
-        private RTPClient rtpClient;
-        MicRecordThread(AudioRecord audioRecord, Client client, RTPClient rtpClient)
+
+        MicRecordThread(AudioRecord audioRecord, Client client)
         {
             this.audioRec = audioRecord;
             this.client = client;
-            this.rtpClient = rtpClient;
-            this.setBufSize(AudioRecord.getMinBufferSize(audioRec.getSampleRate(), audioRec.getChannelCount(), audioRec.getAudioFormat()));
+
         }
 
         public void run()
         {
+            ByteArrayOutputStream byteOutpuStream = new ByteArrayOutputStream();
+
+            try {
+                //Start udp connection.
+                client.connectToUDPServer();
+                if (client.isConnectedToUDP())
+                    System.out.println("Client has connected to UDP...");
+
+                else
+                    System.out.println("Client was unable to connect to the UDP port.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             audioRec.startRecording();
-            int payloadType = 17; // dvi4
+            int payloadType = 17; // dvi4 requied as specified by rtp format.
             int seqNum = 0;
             try {
-                client.connectToMultiSocket();
                 int bytesRead = 0;
                 while(this.isRecording())
                 {
                     int bufSize = this.getBufSize();
-
                     byte[] audioData = new byte[bufSize];
                     bytesRead = audioRec.read(audioData, 0, bufSize);
                     RtpPacket rtpPacket = new RtpPacket(payloadType, seqNum++, (int) System.currentTimeMillis(), audioData);
-                    try {
-                        client.sendRTP(rtpPacket.getPacket());
-                    } catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
+
+                    //Transmit RTP packet to server.
+                    this.client.sendBytesToUDP(rtpPacket.getPacket());
+
                 }
                 this.client.closeUDPSocket();
 
-            } catch (IOException e)
+            } catch (Exception e)
             {
                 e.printStackTrace();
             }
