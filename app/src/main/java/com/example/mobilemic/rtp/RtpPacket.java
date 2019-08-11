@@ -3,6 +3,8 @@ package com.example.mobilemic.rtp;
 
 import com.example.mobilemic.helper.BitOperation;
 
+import java.nio.ByteBuffer;
+
 public class RtpPacket {
 
     //size of the RTP header:
@@ -98,9 +100,11 @@ public class RtpPacket {
 
         byte head1 = BitOperation.joinRight((byte) PType, (byte) pMarker, (byte) 1);
         header[1] = head1;
-
-        header[2] = (byte) pSequenceNumber;
-        header[3] = (byte) (pSequenceNumber >>> 8);
+        ByteBuffer bBuffer = ByteBuffer.allocate(2);
+        byte[] result = bBuffer.putShort((short) pSequenceNumber).array();
+        header[2] = result[0];
+        header[3] = result[1];
+        bBuffer.clear();
 
         header = BitOperation.copyBytesIntoArray(header, 4, pTimeStamp);
         header = BitOperation.copyBytesIntoArray(header, 8, pSsrc);

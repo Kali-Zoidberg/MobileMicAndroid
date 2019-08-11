@@ -73,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             mediaRec.setAudioSource(MediaRecorder.AudioSource.MIC);
 
-            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT,
-                    AudioRecord.getMinBufferSize(hertz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT));
+            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, 44100, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT,
+                    AudioRecord.getMinBufferSize(hertz, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -152,8 +152,6 @@ public class MainActivity extends AppCompatActivity {
 
                 micRecordThread = new MicRecordThread(this.recorder, client);
 
-
-
             } catch (Exception e) {
                 errorTextView.setText("Error connecting to server " + e.getMessage());
                 e.printStackTrace();
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
         private AudioRecord audioRec;
         private Client client;
         private boolean recording = false;
-        private int bufSize = 4;
+        private int bufSize = 812;
         private final Object bufSizeLock = new Object();
         private Object recordingLock = new Object();
 
@@ -249,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
                     byte[] audioData = new byte[bufSize];
                     bytesRead = audioRec.read(audioData, 0, bufSize);
                     RtpPacket rtpPacket = new RtpPacket(payloadType, seqNum++, (int) System.currentTimeMillis(), audioData);
+                    System.out.println("Sequence num: " + rtpPacket.getSequenceNumber());
 
                     //Transmit RTP packet to server.
                     this.client.sendBytesToUDP(rtpPacket.getPacket());
