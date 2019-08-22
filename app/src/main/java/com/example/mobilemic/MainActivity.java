@@ -17,22 +17,12 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mobilemic.rtp.RTPSocketPlayer;
+import com.example.mobilemic.Network.Protocol;
 import com.example.mobilemic.rtp.RtpPacket;
-
-import net.majorkernelpanic.streaming.rtp.RtpSocket;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Vector;
-
-import javax.media.CaptureDeviceManager;
-import javax.media.MediaLocator;
-import javax.media.protocol.CaptureDevice;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private String serverIP = "";
@@ -50,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private String [] internetPermissions = {Manifest.permission.INTERNET};
     private String [] networkPermissions = {Manifest.permission.ACCESS_NETWORK_STATE};
     private boolean recording = true;
+
 
     private boolean permissionToRecordAccepted = false;
 
@@ -213,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
         private int bufSize = 812;
         private final Object bufSizeLock = new Object();
         private Object recordingLock = new Object();
-
+        private final int clumpSize = 4;
         MicRecordThread(AudioRecord audioRecord, Client client)
         {
             this.audioRec = audioRecord;
@@ -236,23 +227,49 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             audioRec.startRecording();
+
+            Random rand = new Random(System.currentTimeMillis());
             int payloadType = 17; // dvi4 requied as specified by rtp format.
             int seqNum = 0;
+            RtpPacket[] tempStorage = new RtpPacket[clumpSize];
+            byte[][] reorderPayloads = new byte[clumpSize][];
             try {
                 int bytesRead = 0;
                 while(this.isRecording())
                 {
                     int bufSize = this.getBufSize();
+
                     byte[] audioData = new byte[bufSize];
+
                     bytesRead = audioRec.read(audioData, 0, bufSize);
-                    RtpPacket rtpPacket = new RtpPacket(payloadType, seqNum++, (int) System.currentTimeMillis(), audioData);
-                    System.out.println("Sequence num: " + rtpPacket.getSequenceNumber());
 
-                    //Transmit RTP packet to server.
-                    this.client.sendBytesToUDP(rtpPacket.getPacket());
+                    RtpPacket rtpPacket = new RtpPacket(payloadType, seqNum, (int) System.currentTimeMillis(), audioData);
 
+                    //Transmit RTP packets to server.
+                    if (seqNum != 0 && (seqNum % clumpSize == 0)) {
+
+                        //Reorder bytes
+                        reorderPayloads = Protocol.order(reorderPayloads, clumpSize);
+                        //Transmit
+                        for (int i = 0; i < clumpSize; ++i) {
+                            tempStorage[i].setPayload(reorderPayloads[i]);
+                           if (rand.nextDouble() < 0.04)
+                               continue;
+                           else {
+                               this.client.sendBytesToUDP(tempStorage[i].getPacket());
+                           }
+                        }
+                    }
+                    //Store rtppacket bytes in a temporary array
+                    tempStorage[seqNum % clumpSize] = rtpPacket;
+                    reorderPayloads[seqNum % clumpSize] = rtpPacket.getPayload();
+                    //Increment seqNum
+                    ++seqNum;
                 }
+
+                //Finished recording, close UDP socket.
                 this.client.closeUDPSocket();
 
             } catch (Exception e)

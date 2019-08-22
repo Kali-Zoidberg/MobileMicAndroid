@@ -9,10 +9,10 @@ public class Protocol {
      * [6 7 8]	  [2 5 8]
      * @param a The array to shuffle
      * @param clumpSize The clump size to shuffle by.
-     * @return Returns a reorder array (useful for delivering UDP packets and utilizing interpolation).
+     * @return Returns a order array (useful for delivering UDP packets and utilizing interpolation).
      */
 
-    public static byte[][] reorder(byte[][] a, int clumpSize)
+    public static byte[][] order(byte[][] a, int clumpSize)
     {
 
         if (clumpSize > a.length)

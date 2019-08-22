@@ -139,6 +139,7 @@ public class RtpPacket {
             //get the payload bitstream:
             payload_size = packet_size - HEADER_SIZE;
             payload = new byte[payload_size];
+
             for (int i=HEADER_SIZE; i < packet_size; i++)
                 payload[i-HEADER_SIZE] = packet[i];
 
@@ -158,6 +159,26 @@ public class RtpPacket {
             data[i] = payload[i];
 
         return(payload_size);
+    }
+
+    public void setPayload(byte[] data)
+    {
+        int size = data.length;
+        for (int i = 0; i < size; ++i)
+        {
+            payload[i] = data[i];
+            //set the packet data.
+            packet[i + HEADER_SIZE] = data[i];
+        }
+    }
+
+    /**
+     * Retrieves the payload
+     * @return Returns the payload
+     */
+    public byte[] getPayload()
+    {
+        return payload;
     }
 
     /**
