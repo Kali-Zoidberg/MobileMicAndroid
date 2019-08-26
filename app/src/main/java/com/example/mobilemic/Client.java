@@ -28,6 +28,8 @@ public class Client {
     private boolean connectedToUDP = false;
     private final String DISCONNECT_CMD = "S.disconnect";
     private final byte[] CLOSE_UDP_CMD = "end".getBytes();
+    private int clumpSize = 64;
+
     private Object ouputLock = new Object();
     private Object inputLock = new Object();
 
@@ -481,6 +483,14 @@ public class Client {
             System.out.println("Sent: " + messagesSent.toString());
 
         }
+    }
+
+    public int getClumpSize() {
+        return clumpSize;
+    }
+
+    public void setClumpSize(int clumpSize) {
+        this.clumpSize = clumpSize;
     }
 }
 class ClientThread extends Thread{

@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = "AudioRecordTest";
     private boolean connected = false;
     private MicRecordThread micRecordThread;
+
     private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private final int REQUEST_INTERNET_PERMISSION = 404;
     private final int REQUEST_NETWORK_ACCESS_PERMISSION = 520;
@@ -113,6 +115,41 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void parseClumpSize(EditText clumpSizeView)
+    {
+        int clumpSize = 64;
+        String clumpMessage = "S.clumpSize";
+        if (clumpSizeView != null)
+        {
+            String clumpStr = clumpSizeView.getText().toString();
+            //If user did not input a clump size, set it to 64.
+            if (clumpStr != null)
+                clumpSize = Integer.parseInt(clumpStr);
+
+            System.out.println("User's clump size: " + clumpSize);
+            if (clumpSize < 4) {
+                System.out.println("Invalid clump Size.");
+            }
+
+        }
+
+        this.client.setClumpSize(clumpSize);
+
+        if (connected)
+        {
+            SendMessageTask sendClumpSize = new SendMessageTask(clumpMessage + " " + clumpSize);
+            sendClumpSize.execute(client);
+        }
+    }
+
+    public void setClumpSize(View view)
+    {
+        EditText clumpSizeText = findViewById(R.id.clumpView);
+
+            parseClumpSize(clumpSizeText);
+
+    }
+
     /**
      * Connects the client to the server.
      */
@@ -123,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         String audioFile = "file://sdcard/sup.wav";
         if (!connected) {
 
-            TextInputEditText serverIPTextInput = (TextInputEditText) findViewById(R.id.serverIPTextInput);
+            TextInputEditText serverIPTextInput =  findViewById(R.id.serverIPTextInput);
             TextInputEditText portTextInput = (TextInputEditText) findViewById(R.id.portTextInput).findViewById(R.id.portTextInputEditText);
             this.serverIP = serverIPTextInput.getText().toString();
             this.port = Integer.parseInt(portTextInput.getText().toString());
@@ -196,6 +233,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+
+
     static class MicRecordThread extends Thread
     {
         private AudioRecord audioRec;
@@ -204,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
         private int bufSize = 812;
         private final Object bufSizeLock = new Object();
         private Object recordingLock = new Object();
-        private final int clumpSize = 4;
         MicRecordThread(AudioRecord audioRecord, Client client)
         {
             this.audioRec = audioRecord;
@@ -233,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
             Random rand = new Random(System.currentTimeMillis());
             int payloadType = 17; // dvi4 requied as specified by rtp format.
             int seqNum = 0;
+            int clumpSize = this.client.getClumpSize();
             RtpPacket[] tempStorage = new RtpPacket[clumpSize];
             byte[][] reorderPayloads = new byte[clumpSize][];
             try {
@@ -255,11 +294,7 @@ public class MainActivity extends AppCompatActivity {
                         //Transmit
                         for (int i = 0; i < clumpSize; ++i) {
                             tempStorage[i].setPayload(reorderPayloads[i]);
-                           if (rand.nextDouble() < 0.04)
-                               continue;
-                           else {
-                               this.client.sendBytesToUDP(tempStorage[i].getPacket());
-                           }
+                            this.client.sendBytesToUDP(tempStorage[i].getPacket());
                         }
                     }
                     //Store rtppacket bytes in a temporary array

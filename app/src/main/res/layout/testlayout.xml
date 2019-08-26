@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.TextInputLayout
+        android:id="@+id/textInputLayout"
         android:layout_width="395dp"
         android:layout_height="wrap_content"
         android:padding="0dp"
@@ -17,12 +18,6 @@
         app:layout_constraintLeft_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <android.support.design.widget.TextInputEditText
-            android:id="@+id/serverIPTextInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter Server IP" />
-
         <android.support.design.widget.TextInputLayout
             android:id="@+id/portTextInput"
             android:layout_width="395dp"
@@ -32,7 +27,7 @@
             tools:layout_editor_absoluteY="172dp">
 
             <android.support.design.widget.TextInputEditText
-				android:id ="@+id/portTextInputEditText"
+                android:id="@+id/portTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Enter Port Number" />
@@ -71,6 +66,44 @@
                 tools:layout_editor_absoluteX="140dp"
                 tools:layout_editor_absoluteY="350dp" />
         </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/serverIPTextInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Server IP" />
     </android.support.design.widget.TextInputLayout>
+
+    <EditText
+        android:id="@+id/clumpView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="28dp"
+        android:layout_marginRight="28dp"
+        android:layout_marginBottom="8dp"
+        android:ems="10"
+        android:hint="clumpSize"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+        app:layout_constraintVertical_bias="0.502" />
+
+    <Button
+        android:id="@+id/clumpConfirm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="setClumpSize"
+        android:text="Confirm Clump Size"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/clumpView"
+        app:layout_constraintStart_toStartOf="@+id/clumpView"
+        app:layout_constraintTop_toBottomOf="@+id/clumpView" />
 
 </android.support.constraint.ConstraintLayout>

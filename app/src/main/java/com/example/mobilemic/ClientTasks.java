@@ -40,6 +40,7 @@ class ConnectToServerTask extends AsyncTask<Client, Boolean, Integer>
             count = i;
             try {
                 clients[i].connectToServer();
+                clients[i].sendDataToServer("S.clumpSize " + clients[i].getClumpSize());
                 publishProgress(new Boolean(true));
             } catch (IOException e)
             {
@@ -56,7 +57,31 @@ class ConnectToServerTask extends AsyncTask<Client, Boolean, Integer>
     }
 }
 
+class SendMessageTask extends AsyncTask<Client, Boolean, Integer> {
 
+    private String message = "";
+
+    SendMessageTask(String message)
+    {
+        this.message = message;
+    }
+
+
+    protected Integer doInBackground(Client... clients)
+    {
+        int len = clients.length;
+        int count = 0;
+        for (int i = 0; i < len; ++i)
+        {
+            count = i;
+            clients[i].sendDataToServer(message);
+
+            publishProgress(new Boolean(true));
+        }
+        return new Integer(count);
+    }
+
+}
 
 class VerifyUIDTask extends AsyncTask<Client, Boolean, Integer> {
     private String uid = "";
