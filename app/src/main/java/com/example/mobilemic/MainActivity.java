@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         int hertz = 44100;
         int channels = 2;
-        int bufferSize = 8096;
+        int bufferSize = 512;
 
         ActivityCompat.requestPermissions(this, internetPermissions, REQUEST_INTERNET_PERMISSION);
        // ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
         private AudioRecord audioRec;
         private Client client;
         private boolean recording = false;
-        private int bufSize = 812;
+        private int bufSize = 812 ;
         private final Object bufSizeLock = new Object();
         private Object recordingLock = new Object();
         MicRecordThread(AudioRecord audioRecord, Client client)
