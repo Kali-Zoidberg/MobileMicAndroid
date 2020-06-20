@@ -1,6 +1,7 @@
 package com.example.mobilemic;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -22,7 +23,9 @@ import com.example.mobilemic.Network.Protocol;
 import com.example.mobilemic.rtp.RtpPacket;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -50,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        ActivityCompat.requestPermissions(this, internetPermissions, REQUEST_INTERNET_PERMISSION);
+//        ActivityCompat.requestPermissions(this, recordPermissions, REQUEST_RECORD_AUDIO_PERMISSION);
         setContentView(R.layout.testlayout);
 
         
@@ -60,8 +65,15 @@ public class MainActivity extends AppCompatActivity {
         int channels = 2;
         int bufferSize = 512;
 
-        ActivityCompat.requestPermissions(this, internetPermissions, REQUEST_INTERNET_PERMISSION);
-       // ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+        /**
+         * TODO
+         *
+         *
+         * Note very big
+         * Need to set the requestPermissions to an onAccessGranted Event Invokation.
+         * This is because the app will minimize if no permission granted before setting content view and stuff.
+         */
+
         MediaRecorder mediaRec = new MediaRecorder();
         try {
             mediaRec.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -117,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void parseClumpSize(EditText clumpSizeView)
     {
-        int clumpSize = 64;
+        int clumpSize = 16;
         String clumpMessage = "S.clumpSize";
         if (clumpSizeView != null)
         {
@@ -146,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
     {
         EditText clumpSizeText = findViewById(R.id.clumpView);
 
-            parseClumpSize(clumpSizeText);
+        parseClumpSize(clumpSizeText);
 
     }
 
@@ -178,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
 
-                micRecordThread = new MicRecordThread(this.recorder, client);
+                micRecordThread = new MicRecordThread(this.recorder, client, this.getApplicationContext());
 
             } catch (Exception e) {
                 errorTextView.setText("Error connecting to server " + e.getMessage());
@@ -240,13 +252,16 @@ public class MainActivity extends AppCompatActivity {
         private AudioRecord audioRec;
         private Client client;
         private boolean recording = false;
-        private int bufSize = 812 ;
+        private int bufSize = 812;
         private final Object bufSizeLock = new Object();
+        private Context mainContext;
         private Object recordingLock = new Object();
-        MicRecordThread(AudioRecord audioRecord, Client client)
+
+        MicRecordThread(AudioRecord audioRecord, Client client, Context context)
         {
             this.audioRec = audioRecord;
             this.client = client;
+            this.mainContext = context;
 
         }
 
@@ -266,42 +281,83 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+
             audioRec.startRecording();
 
             Random rand = new Random(System.currentTimeMillis());
             int payloadType = 17; // dvi4 requied as specified by rtp format.
             int seqNum = 0;
             int clumpSize = this.client.getClumpSize();
+            long numBytes = 0;
+            long numBytesRead = 0;
+            long rtpBytesRead = 0;
+            long numOrderBytesBefore = 0;
+            long numOrderBytesAfter = 0;
+            long numBytesArray =0 ;
+
             RtpPacket[] tempStorage = new RtpPacket[clumpSize];
             byte[][] reorderPayloads = new byte[clumpSize][];
+            byte[][] unorderPayloads = new byte[clumpSize][];
+            byte[][] tempAudio = new byte[clumpSize][];
             try {
                 int bytesRead = 0;
+                OutputStreamWriter audioFile = new OutputStreamWriter(mainContext.openFileOutput("micAudio.txt", Context.MODE_PRIVATE));
+                int curIter = 0;
                 while(this.isRecording())
                 {
                     int bufSize = this.getBufSize();
 
                     byte[] audioData = new byte[bufSize];
 
+                    //Write here
                     bytesRead = audioRec.read(audioData, 0, bufSize);
-
+                    numBytesRead +=bytesRead;
+                    numBytes += bytesRead;
+//                    System.out.println("PRocessing: " + curIter++);
+//                    System.out.println("Audio num bytes: " + numBytes);
+                    audioFile.write(this.bytesToString(audioData));
+                    //Write here
                     RtpPacket rtpPacket = new RtpPacket(payloadType, seqNum, (int) System.currentTimeMillis(), audioData);
-
+                    rtpBytesRead += rtpPacket.getPayloadLength();
+//                    System.out.println("rtpBytes read: " + rtpBytesRead);
                     //Transmit RTP packets to server.
                     if (seqNum != 0 && (seqNum % clumpSize == 0)) {
 
+                        //Write here
                         //Reorder bytes
+                        numOrderBytesBefore += reorderPayloads.length;
                         reorderPayloads = Protocol.order(reorderPayloads, clumpSize);
+
+                        numOrderBytesAfter += reorderPayloads.length;
                         //Transmit
                         for (int i = 0; i < clumpSize; ++i) {
+                            //Write here -- tempStorage
                             tempStorage[i].setPayload(reorderPayloads[i]);
                             this.client.sendBytesToUDP(tempStorage[i].getPacket());
+                            //Write here -- tempStorage
                         }
+//                        unorderPayloads = Protocol.reorder(tempStorage, clumpSize);
+//                        for (int i = 0; i < tempAudio.length; ++i){
+//                            for (int j = 0; j < tempAudio[i].length; ++j) {
+//                                if (tempAudio[i][j] != unorderPayloads[i][j]) {
+//                                    System.out.println("alignment error at: (" + i + "," + j+")");
+//                                    System.out.println(tempAudio[i][j] + " != " + unorderPayloads[i][j]);
+//                                }
+//                            }
+//                        }
                     }
+                    tempAudio[seqNum % clumpSize] = audioData;
+                    //Write here
                     //Store rtppacket bytes in a temporary array
                     tempStorage[seqNum % clumpSize] = rtpPacket;
                     reorderPayloads[seqNum % clumpSize] = rtpPacket.getPayload();
+                    numBytesArray += rtpPacket.getPayload().length;
+//                    System.out.println("num Bytes Array: "  + numBytesArray);
+
+
                     //Increment seqNum
                     ++seqNum;
+//                    System.out.println("numBytes: " + numBytes);
                 }
 
                 //Finished recording, close UDP socket.
@@ -327,6 +383,21 @@ public class MainActivity extends AppCompatActivity {
                 return recording;
             }
 
+        }
+
+        /**
+         * Creates a string from an array of bytes separated by a space
+         * @param someBytes
+         * @return
+         */
+        private String bytesToString(byte[] someBytes) {
+            String retStr = "";
+
+            for (int i = 0; i < someBytes.length; ++i) {
+                retStr += " " + someBytes[i];
+            }
+
+            return retStr;
         }
 
         /**

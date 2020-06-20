@@ -96,17 +96,21 @@ class VerifyUIDTask extends AsyncTask<Client, Boolean, Integer> {
     {
         int len = clients.length;
         int count = 0;
-        for (int i = 0; i < len; ++i)
-        {
-            count = i;
-            clients[i].sendDataToServer("UID." + this.uid);
-            if (!clients[i].readMessageFromServer().equals("VALID_UID"))
-            {
-                publishProgress(new Boolean(false));
-                count = 0;
-                break;
+        try {
+            for (int i = 0; i < len; ++i) {
+                count = i;
+                clients[i].sendDataToServer("UID." + this.uid);
+                if (!clients[i].readMessageFromServer().equals("VALID_UID")) {
+                    publishProgress(new Boolean(false));
+                    count = 0;
+                    break;
+                }
+                publishProgress(new Boolean(true));
             }
-            publishProgress(new Boolean(true));
+        } catch (NullPointerException e) {
+            System.out.println("Error connecting to server.");
+            //error connection to server
+            throw new NullPointerException();
         }
         return new Integer(count);
     }

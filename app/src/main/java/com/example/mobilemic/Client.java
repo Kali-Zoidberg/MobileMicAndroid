@@ -28,7 +28,7 @@ public class Client {
     private boolean connectedToUDP = false;
     private final String DISCONNECT_CMD = "S.disconnect";
     private final byte[] CLOSE_UDP_CMD = "end".getBytes();
-    private int clumpSize = 64;
+    private int clumpSize = 16;
 
     private Object ouputLock = new Object();
     private Object inputLock = new Object();
